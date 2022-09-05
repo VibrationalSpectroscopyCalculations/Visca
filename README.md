@@ -1,5 +1,5 @@
 # Visca
-Welcome to the GitHub page of the ViSCa code: a toolbox for performing Vibrational Spectroscopy Calculations. Like the golden bough (golden like a mistletoe; "viscum") that showed Aeneis where to find the entrance to the underworld where he would obtain words of wisdom from his father residing in the Elysian fields (see https://en.wikipedia.org/wiki/The_Golden_Bough_(mythology), and below), we hope that the ViSCa tools on this page may help scientists interpret their vibrational spectroscopy datasets. 
+Welcome to the GitHub page of the ViSCa code: a toolbox for performing Vibrational Spectroscopy Calculations. Like the golden bough (golden like a mistletoe; "viscum") that showed Aeneis where to find the entrance to the underworld where he would obtain words of wisdom from his father residing in the Elysian fields (see https://en.wikipedia.org/wiki/The_Golden_Bough_(mythology), and at the bottom of this readme file), we hope that the ViSCa tools on this page may help scientists interpret their vibrational spectroscopy datasets. 
 
 
 
