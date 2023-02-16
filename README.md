@@ -36,11 +36,18 @@ tollunt se celeres liquidumque per aera lapsae
 sedibus optatis gemina super arbore sidunt,
 discolor unde auri per ramos aura refulsit.
 quale solet siluis brumali frigore **uiscum**
-fronde uirere noua, quod non sua seminat arbos,
-et croceo fetu teretis circumdare truncos,
-talis erat species auri frondentis opaca
-ilice, sic leni crepitabat brattea uento.
 
-Translation into English:
-(So speaking, he checked his steps, marking what signs they bring, where they direct their course. As eyes could keep them within sight; then, when they came to the jaws of noisome Avernus,) 
-they swiftly rise and, dropping through the unclouded air, perch side by side on their chosen goal – a tree, through whose branches flashed the contrasting glimmer of gold. As in winter’s cold, amid the woods, the mistletoe, sown of an alien tree, is wont to bloom with strange leafage, and with yellow fruit embrace the shapely stems: such was the vision of the leafy gold on the shadowy ilex, so rustled the foil in the gentle breeze.
+Translation into English by Robert Fitzgerald (see 
+https://llewelynmorgan.com/2013/10/03/au/):
+
+What signs the doves might give, or where their flight
+Might lead him. And they fed, and then flew on,
+Each time as far as one who came behind
+Could keep in view. Then when they reached the gorge
+Of sulphurous Avernus, first borne upward
+Through the lucent air, they glided down
+To their desired rest, the two-hued tree
+Where glitter of gold filtered between green boughs.
+Like Mistletoe…
+
+Interested readers are recommended to visit Llewely Morgan's website to read why the "discolor unde auri per ramos aura refulsit" line has received so much attention in classical language studies.
