@@ -39,7 +39,7 @@ F90 = ifort
 
 .PHONEY: clean default install
 default:
-	echo "\nWarning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'sudo make install'.\nGood luck!"
+	echo "\nWarning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'make install'.\nGood luck!"
 
 # Compile visca.f90
 visca.out: visca.f90
