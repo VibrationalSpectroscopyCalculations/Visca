@@ -18,7 +18,7 @@ os.system('cp "%s%s.pdb" %s'%(settings['pdb_location'], settings['name'], plot_d
 fortran_script = settings['fortran_script_location']+settings['fortran_script']
 
 os.chdir(plot_dir)
-command = 'vmd -dispdev text -e "'+settings['tcl_scripts_location']+'splitter_i_to_f.tcl" -args "%s%s.dcd" %s %s > ../VMD_log.txt'%(settings['dcd_location'],settings['name'],str(fi),str(ff))
+command = settings['vmd_command']+' -dispdev text -e "'+settings['tcl_scripts_location']+'splitter_i_to_f.tcl" -args "%s%s.dcd" %s %s > ../VMD_log.txt'%(settings['dcd_location'],settings['name'],str(fi),str(ff))
 os.system(command)
 
 split_dcd = 'f'+fi+'to'+ff

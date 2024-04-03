@@ -140,7 +140,14 @@ def Abs_squared_list(a,b):
     return [aa**2 + bb**2 for aa,bb in zip(a,b)]
 
 def Read_settings(filename):
-    settings = {}
+    #Default settings:
+    settings = {
+                'vmd_command':'vmd',
+                'SSP_bg':'0.0',
+                'PPP_bg':'0.0',
+                'SPS_bg':'0.0',
+                'PSS_bg':'0.0'
+               }
     with open(filename) as f:
         for line in f:
             line = line.replace(" ","")
@@ -437,7 +444,7 @@ def Write_plot(settings_file, fi, ff):
     fortran_script = settings['fortran_script_location']+settings['fortran_script']
     
     os.chdir(plot_dir)
-    command = 'vmd -dispdev text -e '+settings['tcl_scripts_location']+'"splitter_i_to_f.tcl" -args "%s%s.dcd" %s %s > ../VMD_log.txt'%(settings['dcd_location'],settings['name'],str(fi),str(ff))
+    command = settings['vmd_command']+' -dispdev text -e '+settings['tcl_scripts_location']+'"splitter_i_to_f.tcl" -args "%s%s.dcd" %s %s > ../VMD_log.txt'%(settings['dcd_location'],settings['name'],str(fi),str(ff))
     os.system(command)
     
     split_dcd = 'f'+fi+'to'+ff

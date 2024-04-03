@@ -1,16 +1,16 @@
   
 ## The Vibrational Spectroscopic Calculation (ViSCa) Software Package for SFG Frame Selection
-ViSCa select - Version 2.0  
+ViSCa select - Version 1.0  
 Scripts by Khezar H. Saeed, Rolf Mertig, Steven J. Roeters and Kris Strunge  
   
 # Quick installation:  
 $ cd ./ViSCa/  
-Open the Makefile in your favorite text editor and change the VISCADIR to the current folder ("$ pwd" to print the pathname)  
+Open the Makefile in your favorite text editor and change the VISCADIR to the current folder ("$ pwd" to print the pathname of the current folder)  
 $ make install  
 
 # Quick run:
 $ cd ./example/  
-$ visca select ViscaSelect\_parameters.inp
+$ visca select ViscaSelect\_parameters.inp  
 
 # Program requirements:
   Linux/Unix - only tested on Ubuntu 20.04 and Ubuntu 22.04  

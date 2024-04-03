@@ -44,7 +44,7 @@ print("################################")
 print("# Calling splitter.tcl via VMD #")
 print("################################")
 VMD_log = 'VMD_log.txt'
-os.system('vmd -dispdev text -e "'+settings['tcl_scripts_location']+'splitter.tcl" -args "%s%s.dcd" %s %s > ../%s'%(settings['dcd_location'],settings['name'], settings['steps'], settings['FPSplit'],VMD_log))
+os.system(settings['vmd_command']+' -dispdev text -e "'+settings['tcl_scripts_location']+'splitter.tcl" -args "%s%s.dcd" %s %s > ../%s'%(settings['dcd_location'],settings['name'], settings['steps'], settings['FPSplit'],VMD_log))
 print("Done with splitting via VMD into pro-dcd files\nOutput can be found in %s/%s"%(work_dir,VMD_log))
 print('Leaving %s'%dcd_dir)
 os.chdir('../../')

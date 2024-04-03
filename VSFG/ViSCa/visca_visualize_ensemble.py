@@ -25,7 +25,7 @@ for s in dcd_list:
     dcd_string += s
 
 pdb_filename = plot_dir+settings['name']+'.pdb'
-os.system('vmd '+pdb_filename+dcd_string)
+os.system(settings['vmd_command']+' '+pdb_filename+dcd_string)
 
 print(dcd_string)
 

@@ -29,7 +29,7 @@
 ##  BINDIR          Directory with ViSCa .sh scripts 	Executes the python scripts
 ##  LINKDIR         Linked Copies of ViSCa .sh 		Used for easy ViSCa execution
 
-VISCADIR = /home/kris/Documents/visca-select-reflection/ViSCa
+VISCADIR = /home/kris/Documents/Visca/VSFG/ViSCa
 BINDIR = $(VISCADIR)/bin
 LINKDIR = /usr/local/bin
 
