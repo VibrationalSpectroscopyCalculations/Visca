@@ -57,6 +57,7 @@ $(BINDIR)/visca: $(BINDIR)/make_visca.sh $(BINDIR)/ref.sh
 # Make LINKS to BINARIES and move links to LINKDIR
 install: visca.out ViscaSelect_parameters.inp $(BINDIR)/visca
 	sudo ln -sf $(BINDIR)/visca $(LINKDIR)/visca
+	echo "\nViSca was succesfully installed - The binary link file is located at $(LINKDIR). If $(LINKDIR) is in the system PATH, the 'visca' command should be available globally now.\nType 'visca' to see usage."
 
 clean: 
 	$(RM) visca visca.out ViscaSelect_parameters.inp *.mod

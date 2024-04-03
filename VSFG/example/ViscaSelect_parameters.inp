@@ -42,4 +42,4 @@ R = 200
 scat_angle = 30
 beta = 5
 alpha = 2
-vmd_command = vmd_for_Mac
+vmd_command = vmd
