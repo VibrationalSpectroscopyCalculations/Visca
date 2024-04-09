@@ -36,14 +36,14 @@ LINKDIR = /usr/local/bin
 #Set compiler (only ifort is currently supported)
 F90 = ifort
 
-
+SHELL := /bin/bash
 .PHONEY: clean default install
 default:
-	echo "\nWarning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'make install'.\nGood luck!"
+	echo "\nWarning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'sudo make install'.\nGood luck!"
 
 # Compile visca.f90
 visca.out: visca.f90
-	$(F90) -O0 -o $@ $< -llapack -lblas
+	$(F90) -O0 -o $@ $< -llapack -lblas -diag-disable=10448
 
 #Make default input file with paths to example folder (done with bash script)
 ViscaSelect_parameters.inp: $(BINDIR)/make_input.sh $(BINDIR)/ref.inp
@@ -57,10 +57,12 @@ $(BINDIR)/visca: $(BINDIR)/make_visca.sh $(BINDIR)/ref.sh
 # Make LINKS to BINARIES and move links to LINKDIR
 install: visca.out ViscaSelect_parameters.inp $(BINDIR)/visca
 	sudo ln -sf $(BINDIR)/visca $(LINKDIR)/visca
-	echo "\nViSca was succesfully installed - The binary link file is located at $(LINKDIR). If $(LINKDIR) is in the system PATH, the 'visca' command should be available globally now.\nType 'visca' to see usage."
+	echo "source $(BINDIR)/autocomplete.sh" >> ~/.bashrc
 
 clean: 
 	$(RM) visca visca.out ViscaSelect_parameters.inp *.mod
+	$(RM) -r __pycache__
+	source $(BINDIR)/unautocomplete.sh
 	$(RM) $(BINDIR)/visca $(BINDIR)/ViscaSelect_parameters.inp
 	sudo $(RM) $(LINKDIR)/visca
 

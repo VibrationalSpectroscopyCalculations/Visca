@@ -32,7 +32,7 @@ test:
 	echo "visca shaded_plot - succes"
 	visca visualize_ensemble ViscaSelect_parameters.inp
 	echo "visca visualize_ensemble - succes"
-	echo "\nAll test finished with out crashing - Correct behavior is still not guaranteed but atleast all scripts can run."
+	echo "\nAll test finished without crashing - Correct behavior is still not guaranteed but at least all scripts can run."
 
 clean: 
 	$(RM) -r Working_Directory_7APP_closed_wt_lard
