@@ -29,7 +29,7 @@
 ##  BINDIR          Directory with ViSCa .sh scripts 	Executes the python scripts
 ##  LINKDIR         Linked Copies of ViSCa .sh 		Used for easy ViSCa execution
 
-VISCADIR = /home/kris/Documents/Visca/VSFG/ViSCa
+VISCADIR = /home/kris/Documents/visca-select-reflection/ViSCa
 BINDIR = $(VISCADIR)/bin
 LINKDIR = /usr/local/bin
 
@@ -39,18 +39,18 @@ F90 = ifort
 SHELL := /bin/bash
 .PHONEY: clean default install
 default:
-	echo "\nWarning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'sudo make install'.\nGood luck!"
+	@echo "\nWarning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'sudo make install'.\nGood luck!"
 
 # Compile visca.f90
 visca.out: visca.f90
 	$(F90) -O0 -o $@ $< -llapack -lblas -diag-disable=10448
 
 #Make default input file with paths to example folder (done with bash script)
-ViscaSelect_parameters.inp: $(BINDIR)/make_input.sh $(BINDIR)/ref.inp
+ViscaSelect_parameters.inp: $(BINDIR)/make_input.sh $(BINDIR)/ref_select.inp $(BINDIR)/ref_orient.inp
 	bash $<
 
 # Make BINARIES in BINDIR with approriate paths
-$(BINDIR)/visca: $(BINDIR)/make_visca.sh $(BINDIR)/ref.sh 
+$(BINDIR)/visca: $(BINDIR)/make_visca.sh $(BINDIR)/install.sh 
 	bash $<
 	chmod +x $@
 
@@ -58,13 +58,17 @@ $(BINDIR)/visca: $(BINDIR)/make_visca.sh $(BINDIR)/ref.sh
 install: visca.out ViscaSelect_parameters.inp $(BINDIR)/visca
 	sudo ln -sf $(BINDIR)/visca $(LINKDIR)/visca
 	echo "source $(BINDIR)/autocomplete.sh" >> ~/.bashrc
+	source ~/.bashrc
+	@printf '\nViSCa was installed\n'
 
 clean: 
-	$(RM) visca visca.out ViscaSelect_parameters.inp *.mod
-	$(RM) -r __pycache__
+	$(RM) visca visca.out ViscaSelect_parameters.inp ViscaOrient_parameters.inp *.mod
+	$(RM) -r select_scripts/__pycache__ orient_scripts/__pycache__ __pycache__
 	source $(BINDIR)/unautocomplete.sh
-	$(RM) $(BINDIR)/visca $(BINDIR)/ViscaSelect_parameters.inp
+	$(RM) $(BINDIR)/visca $(BINDIR)/ViscaSelect_parameters.inp $(BINDIR)/ViscaOrient_parameters.inp
+	source ~/.bashrc
 	sudo $(RM) $(LINKDIR)/visca
+	@printf '\nViSCa was uninstalled\n'
 
 
 

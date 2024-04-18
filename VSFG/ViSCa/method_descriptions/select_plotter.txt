@@ -1,0 +1,8 @@
+select_plotter method:
+This method uses the ViSCa frequency mapping SFG model. It is part of the ViSCa frame selection.
+The plotter can run without first running ViSCa select. It calculates and plot a single set SFG spectra. from frames specified in the commandline.
+It also calculates the residual sum square (RSS) deviation between the calculated spectra and the experimental spectra specified in the input file.
+The RSS values are normalized to the number of experimental spectral points in the specfied spectral region.
+example of usage:
+$ visca select_plotter input.inp 1 5
+above command plots the calculated SFG spectra from frame 1-5 in the .dcd file specified in input file "input.inp". Frames are combined in the fortran script such that the average C=O bondlength is used.

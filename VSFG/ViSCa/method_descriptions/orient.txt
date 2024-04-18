@@ -1,0 +1,5 @@
+orient method:
+This method uses the ViSCa frequency mapping SFG model. It is the fundamental method of the ViSCa orientation analysis.
+The method uses VMD to orient the specified protein structure (.pdb) in all possible orientation with a specified resolution.
+The method calculates a list of the residual sum square (RSS) deviations between a specified experimental SFG spectra and calculated SFG spectra for each oriented protein structure.
+The RSS values are normalized to the number of experimental spectral points in the specfied spectral region.

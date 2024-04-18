@@ -1,0 +1,4 @@
+select method:
+This method uses the ViSCa frequency mapping SFG model. It is the fundamental method of the ViSCa frame selection.
+The method calculates a list of the residual sum square (RSS) deviations between a specified experimental SFG spectra and calculated SFG spectra for each frame/protein structure in a specified .dcd file.
+The RSS values are normalized to the number of experimental spectral points in the specified region.
