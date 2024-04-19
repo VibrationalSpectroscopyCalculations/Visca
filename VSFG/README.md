@@ -10,7 +10,7 @@ The program is run through the terminal/command line. After installation (see "Q
 The "visca" command reports usage and allows to run the different methods which make up the ViSCa software package.  
 The visca command can be run in any new project directory. The project directory need to contain the necessary input files, of which an running example can be found in the "./example" directory.  
 
-   ![ViSCa graphic](/VSFG/ViSCa_graphic.png "Visca graphic")  
+   ![ViSCa graphic](/ViSCa_graphic.png "Visca graphic")  
 
 This software is managed by [SurfLab](https://chem.au.dk/en/research/research-areas-and-groups/physicalchemistry/surflab "SurfLab website") at Aarhus University. We are chemists not programmers, so take care.  
 
@@ -19,7 +19,8 @@ This software is managed by [SurfLab](https://chem.au.dk/en/research/research-ar
 `$ cd ./ViSCa/`  
 Open the Makefile in your favorite text editor and change the VISCADIR to the current directory (Use "$ pwd" to print the directory path)  
 `$ make install`  
-
+  
+Optionally: `$ source ~/bashrc` or open fresh terminal to enable autocompletion of ViSCa methods.  
 
 # Quick run:
 `$ cd ./example/`  

@@ -86,12 +86,13 @@ xvals = sfg_data["#Frequency"]
 sfg_pol_comb = np.vstack((xvals, SSP, PPP, SPS, PSS, PSP, SPP, PPS)).T
 np.savetxt(sfg_pol_comb_path+'/pol_comb_sfg'+sfg_file_name[:-8]+'.txt', sfg_pol_comb, fmt='%1.9f')
 
-sfg_pol_comb = np.loadtxt(work_dir+'/sfg_pol_combs/pol_comb_sfg'+split_dcd+'.txt')
-calc_data = {'xvals':sfg_pol_comb[:,0], 
-		'SSP': sfg_pol_comb[:,1], 
-		'PPP': sfg_pol_comb[:,2], 
-		'SPS': sfg_pol_comb[:,3], 
-		'PSS': sfg_pol_comb[:,4]}
+#sfg_pol_comb = np.loadtxt(work_dir+'/sfg_pol_combs/pol_comb_sfg'+split_dcd+'.txt')
+#calc_data = {'xvals':sfg_pol_comb[:,0], 
+#		'SSP': sfg_pol_comb[:,1], 
+#		'PPP': sfg_pol_comb[:,2], 
+#		'SPS': sfg_pol_comb[:,3], 
+#		'PSS': sfg_pol_comb[:,4]}
+calc_data = visca.Read_pol_comb_file(work_dir+'/sfg_pol_combs/pol_comb_sfg'+split_dcd+'.txt',False)
 
 #Detecting polarization combinations
 potential_pol_combs = ['SSP',
