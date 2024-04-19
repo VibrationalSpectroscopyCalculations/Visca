@@ -34,7 +34,7 @@ BINDIR = $(VISCADIR)/bin
 LINKDIR = /usr/local/bin
 
 #Set compiler (only ifort is currently supported)
-#F90 = ifort
+F90 = ifort
 
 SHELL := /bin/bash
 .PHONEY: clean default install
@@ -42,8 +42,8 @@ default:
 	@printf "Warning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'sudo make install'.\nGood luck!\n"
 
 # Compile visca.f90
-#visca.out: visca.f90
-#	$(F90) -O0 -o $@ $< -llapack -lblas -diag-disable=10448 -static-intel
+visca.out: visca.f90
+	$(F90) -O2 -o $@ $< -llapack -lblas -diag-disable=10448 -static-intel
 
 #Make default input file with paths to example folder (done with bash script)
 ViscaSelect_parameters.inp: $(BINDIR)/make_input.sh $(BINDIR)/ref_select.inp $(BINDIR)/ref_orient.inp
@@ -55,21 +55,19 @@ $(BINDIR)/visca: $(BINDIR)/make_visca.sh $(BINDIR)/install.sh
 	chmod +x $@
 
 # Make LINKS to BINARIES and move links to LINKDIR
-install: ViscaSelect_parameters.inp $(BINDIR)/visca
+install: visca.out ViscaSelect_parameters.inp $(BINDIR)/visca
 	sudo ln -sf $(BINDIR)/visca $(LINKDIR)/visca
 	echo "source $(BINDIR)/autocomplete.sh" >> ~/.bashrc
 	source ~/.bashrc
 	@printf '\nViSCa was installed\n'
 
 clean: 
-	$(RM) visca ViscaSelect_parameters.inp ViscaOrient_parameters.inp *.mod
+	$(RM) visca visca.out ViscaSelect_parameters.inp ViscaOrient_parameters.inp *.mod
 	$(RM) -r select_scripts/__pycache__ orient_scripts/__pycache__ __pycache__
 	source $(BINDIR)/unautocomplete.sh
 	$(RM) $(BINDIR)/visca $(BINDIR)/ViscaSelect_parameters.inp $(BINDIR)/ViscaOrient_parameters.inp
 	source ~/.bashrc
 	sudo $(RM) $(LINKDIR)/visca
 	@printf '\nViSCa was uninstalled\n'
-
-
 
 
