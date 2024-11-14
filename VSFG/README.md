@@ -1,6 +1,6 @@
   
 ## The Vibrational Spectroscopic Calculation (ViSCa) Software Package for SFG Frame Selection
-ViSCa select - Version 2.0  
+ViSCa select - Version 3.0  
 Scripts by Khezar H. Saeed, Rolf Mertig, Steven J. Roeters and Kris Strunge  
 
 
