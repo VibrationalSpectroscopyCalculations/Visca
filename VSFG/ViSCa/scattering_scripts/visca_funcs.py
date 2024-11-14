@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import interpolate
+from numpy import cos, sin, exp
+from scipy import interpolate, optimize
 from pathlib import Path
 import os, sys
 
@@ -20,7 +21,7 @@ def Read_calc_SFG(filename):
 
             else: #Reading data into dictionary
                for i,string_val in enumerate(line_list):
-                    data[titles[i]].append(float(string_val))
+                   data[titles[i]].append(float(string_val))
     return data
 
 def Plot_data(x_key,y_key,data):
@@ -63,8 +64,8 @@ def Reduce_range(x_i, x_f, xvals, l):
     return reduced_l
 
 def RSS(x_calc, y_calc, x_exp, y_exp, plot=False):
-    spline_calc = interpolate.splrep(x_calc,y_calc,s=0) #Spline representation of calculated data. s=0 => no smoothing
     N = len(x_exp)
+    spline_calc = interpolate.splrep(x_calc,y_calc,s=0) #Spline representation of calculated data. s=0 => no smoothing
     if plot:
         x_interpol = np.linspace(x_calc[0],x_calc[-1],2000)
         y_interpol = interpolate.splev(x_interpol,spline_calc, der=0)
@@ -74,7 +75,7 @@ def RSS(x_calc, y_calc, x_exp, y_exp, plot=False):
         plt.show()
     def RS(x_e, y_e):
         return (y_e - interpolate.splev(x_e, spline_calc, der=0) )**2
-    return sum([RS(x_e, y_e) for x_e,y_e in zip(x_exp,y_exp)]) /N
+    return sum([RS(x_e, y_e) for x_e,y_e in zip(x_exp,y_exp)]) /N #Divided by N to normalize to the number of points
 
 def Sort_dcd_names(l):
     keys = []
@@ -149,7 +150,7 @@ def Read_settings(filename):
                 try:
                     key,s = line.split("=")
                 except:
-                    print("Non-Read line found in input file")
+                    print("Non-Readable line found in input file:",line)
                     continue
                 if key[-8:]=="location":
                     s = Location_checker(s)
@@ -161,7 +162,7 @@ def Location_checker(s):
     s = s.replace("Dropbox(AAU-Dropbox)","Dropbox (AAU-Dropbox)") #ugly save for the stupid space in dropbox dir name
     s = s.replace("~", home)
     s = s.replace("$HOME", home)
-    if s[-1] != '/': #add the optional "/" at the end of pathnames
+    if s[-1] != '/':
         s += '/'
     return s
 
@@ -184,17 +185,14 @@ def Read_RSS_file(filename):
                    data[titles[i]].append(float(string_val))
     return data
 
-def Read_pol_comb_file(filename, Normalize_wrt, pol_combs=['SSP','PPP','SPS','PSS','PSP','SPP','PPS']):
+def Read_pol_comb_file(filename, Normalize_wrt, pol_combs=['SSP','PPP','SPS','PSS']):
     sfg_pol_comb = np.loadtxt(filename).T
     calc_data = {'xvals':sfg_pol_comb[0],
-		 'wavenumber':sfg_pol_comb[0],
+                 'wavenumber':sfg_pol_comb[0],
                  'SSP': sfg_pol_comb[1],
                  'PPP': sfg_pol_comb[2],
                  'SPS': sfg_pol_comb[3],
-                 'PSS': sfg_pol_comb[4],
-                 'PSP': sfg_pol_comb[5],
-                 'SPP': sfg_pol_comb[6],
-                 'PPS': sfg_pol_comb[7]}
+                 'PSS': sfg_pol_comb[4]}
     #Normalizing spectra
     if Normalize_wrt:
         N_calc = max(calc_data[Normalize_wrt])
@@ -209,6 +207,7 @@ def Read_pol_comb_file(filename, Normalize_wrt, pol_combs=['SSP','PPP','SPS','PS
 ### Functions added 24th Jan 2022     ###
 ### To do rotation i theta,pih angles ###
 ### Tested in: "rotation_script.py"   ###
+### by Khezar Hayat Saeed             ###
 
 def unit_vector(vector):
     """ Returns the unit vector of the vector.  """
@@ -273,6 +272,9 @@ def thetaphi_to_xy(theta,phi):
     return z_to_xy(thetaphi_to_z(theta, phi))
 
 
+if __name__=='__main__':
+   print(Get_dcd_theta_phi_psi('theta9_phi132_psi0.dcd'))
+
 def fresnel_factors(lambda_vis, omega_ir, n1_sfg, n1_vis, n1_ir, n2_sfg, n2_vis, n2_ir, ni_sfg, ni_vis, ni_ir, theta1_vis, theta1_ir):
       #calculate interfacial refractive indices
       #convert visible wavelength to frequency in cm-1
@@ -315,8 +317,91 @@ def fresnel_factors(lambda_vis, omega_ir, n1_sfg, n1_vis, n1_ir, n2_sfg, n2_vis,
       F_XZY = (Lxx_sfg * Lzz_vis * Lyy_ir * np.cos(theta1_sfg) * np.sin(theta1_vis))
       return(F_YYZ, F_YZY, F_ZYY, F_XXZ, F_XZX, F_ZXX, F_ZZZ, F_ZYX, F_XYZ, F_YZX, F_YXZ, F_ZXY, F_XZY)
 
-### Functions added 16th Apr 2024        ###
-### Copied from select visca_funcs.py    ###
+def foward_interface(n1, n2, n3, theta1):
+    theta2 = np.arcsin(n1*np.sin(theta1)/n2)
+    return np.arcsin(n2*np.sin(theta2)/n3)
+
+def q(k0,scat):
+    return 4*k0*sin(scat)
+
+def A(R,k0, scat):
+    return ((6*1j/(q(k0,scat)**4*R**2))*(
+        2*(1-(q(k0,scat)**2*R**2)/3)*sin(q(k0,scat)*R)-2*q(k0,scat)*R*
+        cos(q(k0,scat)*R)))
+
+
+def B(R,k0,scat):
+    return (6*1j/(q(k0,scat)**4*R**2))*(
+        (q(k0,scat)**2*R**2-2)*sin(q(k0,scat)*R)-
+        q(k0,scat)*R*((q(k0,scat)**2*R**2)/3-2)*cos(q(k0,scat)*R))
+
+
+# Here r is perpendicular and p is parallel
+def Grrr(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return 2*np.pi*(B(R,k0,scat)*Xrrr+A(R,k0, scat)*
+                    (Xrpp+Xprp+Xppr))
+
+def Grpp(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*Xrrr+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xrpp-
+                  A(R,k0, scat)*(Xprp+Xppr))
+
+def Gprp(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*(Xrrr-Xrpp)+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xprp-A(R,k0, scat)*Xppr)
+
+def Gppr(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*(Xrrr-Xrpp)-
+                  A(R,k0, scat)*Xprp+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xppr)
+
+# claculating alpha
+def angle_between(v1, v2): 
+    """ Returns the angle in radians between vectors 'v1' and 'v2'::
+
+            >>> angle_between((1, 0, 0), (0, 1, 0))
+            1.5707963267948966
+            >>> angle_between((1, 0, 0), (1, 0, 0))
+            0.0
+            >>> angle_between((1, 0, 0), (-1, 0, 0))
+            3.141592653589793
+    """
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+
+def unit_vector(vector): 
+    """ Returns the unit vector of the vector.  """
+    return vector / np.linalg.norm(vector)
+
+def find_k2(beta,w0,w2,verbose): 
+    def beta_deviation(params,beta,w2,w0):
+        k2 = 1/w2*unit_vector(np.array([1,params[0]]))
+        k1 = np.array([-k2[0],1/w0-k2[1]])
+        beta_calc = angle_between(k1,k2)*180/np.pi
+        if verbose:
+            print('input: %2.3f  angle: %2.3f  error: %2.3f'%(params[0],beta_calc,abs(beta-beta_calc)))
+        return abs(beta-beta_calc)
+    error = 1e-5
+    fit = optimize.minimize(beta_deviation, 4.86462692, args=(beta,w2,w0), tol=error)
+    if verbose:
+        print(fit)
+    return fit['x']
+
+def Alpha(beta,w0,w2,verbose=False):
+    '''Calculating the angle alpha in degrees (between IR [k2] and forward SF [k0])
+       using minimization to determine the correct opening angle [beta] in degrees'''
+    k0 = np.array([0,1/w0])
+    x = find_k2(beta,w0,w2,verbose)[0]
+    k2 = 1/w2*unit_vector(np.array([1,x]))
+    alpha_calc = angle_between(k0,k2)*180/np.pi
+    if verbose:
+        print('alpha:',alpha_calc)
+    return alpha_calc
+
+
+### Functions added 5th Mar 2024         ###
 ### To do plotting with separate scripts ###
 ### by Kris Strunge                      ###
 
@@ -326,19 +411,16 @@ def Check_pdbfile(pdb_filename):
     ATOM_flag = False
     with open(pdb_filename) as pdbfile:
         for line in pdbfile:
-            line_list = line.split()
-            if len(line_list)<1: #skip empty lines
-                continue
-            if line_list[0] == 'ATOM': # Identify ATOM section
+            if line.split()[0] == 'ATOM': # Identify ATOM section
                 ATOM_flag = True
-            if ATOM_flag and line_list[0]!='ATOM': #Check that ATOM section ends with TER
-                if line_list[0]=='TER':
+            if ATOM_flag and line.split()[0]!='ATOM': #Check that ATOM section ends with TER
+                if line.split()[0]=='TER':
                     return True
                 else:
                     print(f'Warning: Missing "TER" flag in pdbfile {pdb_filename} - trying to autocorrect')
                     return False
-        if len(line_list)>0 and line_list[0]=='ATOM': #file ended with unfinished ATOM section: adding TER
-            print(f'Warning: Missing "TER" line at the end of pdbfile {pdb_filename} - trying to autocorrect')
+        if ATOM_flag and not TER_flag: #file ended with unfinished ATOM section: adding TER
+            print(f'Warning: Missing "TER" line in pdbfile {pdb_filename} - trying to autocorrect')
             return False
     print(f'Warning: Major error in pdb format - Check your pdbfile {pdb_filename}')
     return False
@@ -391,24 +473,19 @@ def Check_pdbfile_hydrogen(pdb_filename, out_log):
                 if atom_label=='N':
                     N_nitrogens += 1
     N_unknown = N_atoms - N_hydrogens - N_carbons - N_oxygens - N_nitrogens
-#    with open(out_log, 'a') as logfile:
-#        logfile.write(f'\nPDB file check found:\n   {N_carbons} carbon atoms\n   {N_hydrogens} hydrogen atoms\n   {N_oxygens} oxygen atoms\n   {N_nitrogens} nitrogen atoms\n   {N_unknown} other atoms\n')   
-    print(f'\nPDB file check found:\n   {N_carbons} carbon atoms\n   {N_hydrogens} hydrogen atoms\n   {N_oxygens} oxygen atoms\n   {N_nitrogens} nitrogen atoms\n   {N_unknown} other atoms\n')   
+    with open(out_log, 'a') as logfile:
+        logfile.write(f'\nPDB check found:\n   {N_carbons} carbon atoms\n   {N_hydrogens} hydrogen atoms\n   {N_oxygens} oxygen atoms\n   {N_nitrogens} nitrogen atoms\n   {N_unknown} other atoms\n')   
     if N_hydrogens/N_atoms < 0.05 or N_hydrogens < 10:
-        print(f'Error - Too few hydrogens found in pdb file: "{pdb_filename}"',file=sys.__stdout__)
-        print('Continue simulation despite .pdb file having suspiciously few hydrogen atoms? (y/n)',file=sys.__stdout__)
-        if '-autoyes' in sys.argv or input('Continue simulation despite .pdb file having suspiciously few hydrogen atoms? (y/n)y\n')!='y':
+        print('Error - Too few hydrogens found in pdb file')
+        if input('Continue simulation despite .pdb file having suspiciously few hydrogen atoms? (y/n)')!='y':
             sys.exit()
     return True
 
-
-
-def Write_plot(settings_file, theta, psi):
-    phi = 0
+def Write_plot(settings_file, fi, ff):
     settings = Read_settings(settings_file)
     #Setting up work directories
     main_dir = os.getcwd()
-    working_dir = main_dir+'/Working_Directory_'+settings['name']+'/orient'
+    working_dir = main_dir+'/Working_Directory_'+settings['name']+'/select'
     plot_dir = working_dir +'/plot'
     
     os.system('mkdir -p %s'%plot_dir)
@@ -417,15 +494,14 @@ def Write_plot(settings_file, theta, psi):
     fortran_script = settings['fortran_script_location']+settings['fortran_script']
     
     os.chdir(plot_dir)
-    command = settings['vmd_command']+' -dispdev text -e "'+settings['tcl_scripts_location']+'rotator_theta_phi_psi.tcl" -args "%s.pdb" %i %i %i > ../VMD_log.txt 2> ../VMD_log.txt'%(settings['name'], int(theta), int(phi), int(psi))
+    command = settings['vmd_command']+' -dispdev text -e '+settings['tcl_scripts_location']+'"splitter_i_to_f.tcl" -args "%s%s.dcd" %s %s > ../VMD_log.txt'%(settings['dcd_location'],settings['name'],str(fi),str(ff))
     os.system(command)
     
-    split_dcd = 'f'+theta+'to'+psi
-    command = 'time "'+fortran_script+'" -pdb '+settings['name']+'.pdb -spec_min 1500 -spec_max 1800 -dcd '+split_dcd+'.dcd -Ham -IR -Raman -SFG -inhom 0 -width %s -charge 1 -coup 1 -dip 0 -nncm 1 -avgOH 1 -mOH %s -Omega0 %s > fortran_log.txt'%(settings['width'],settings['mOH'],settings['Omega0'])
+    split_dcd = 'f'+fi+'to'+ff
+    command = 'time "'+fortran_script+'" -pdb '+settings['name']+'.pdb spec_min 1500 -spec_max 1800 -dcd '+split_dcd+'.dcd -Ham -IR -Raman -SFG -inhom 0 -width %s -charge 1 -coup 1 -dip 0 -nncm 1 -avgOH 1 -mOH %s -Omega0 %s > fortran_log.txt'%(settings['width'],settings['mOH'],settings['Omega0'])
     os.system(command)
-#    sfg_data = np.loadtxt(working_dir+f'/sfg_pol_combs/pol_comb_sfgtheta{theta}_phi0_psi{psi}.txt')
-#    split_dcd = f'pol_comb_sfgtheta{theta}_phi0_psi{psi}'
-    calc_data = Read_pol_comb_file(working_dir+f'/sfg_pol_combs/pol_comb_sfgtheta{theta}_phi0_psi{psi}.txt', False) # {'xvals':sfg_data[:,0], 'SSP': sfg_data[:,1], 'PPP': sfg_data[:,2], 'SPS': sfg_data[:,3], 'PSS': sfg_data[:,4]}
+#    sfg_data = np.loadtxt(working_dir+'/sfg_pol_combs/pol_comb_sfg'+split_dcd+'.txt')
+    calc_data = Read_pol_comb_file(working_dir+'/sfg_pol_combs/pol_comb_sfg'+split_dcd+'.txt',False) #{'xvals':sfg_data[:,0], 'SSP': sfg_data[:,1], 'PPP': sfg_data[:,2], 'SPS': sfg_data[:,3], 'PSS': sfg_data[:,4]}
     os.chdir('../../../')
     print('Calculating Fresnel factors...')
     
@@ -494,7 +570,7 @@ def Write_plot(settings_file, theta, psi):
     
     
     #Print all RSS value to RSS file if specified
-    spec_file = plot_dir+f'/f{theta}to{psi}.txt'
+    spec_file = plot_dir+'/f'+fi+'to'+ff+'.txt'
     print('\nprinting spectrum to %s'%spec_file)
     with open(spec_file,'w') as f:
         header = ['wavenumber']+pol_combs
@@ -507,7 +583,7 @@ def Write_plot(settings_file, theta, psi):
 def Write_exp(settings_file):
     settings  = Read_settings(settings_file)
     main_dir = os.getcwd()
-    work_dir = 'Working_Directory_'+settings['name']+'/orient'
+    work_dir = 'Working_Directory_'+settings['name']+'/select'
     plot_dir = main_dir+'/'+work_dir+'/plot'
     RSS_file = '%s/%s'%(work_dir,settings['RSS_file'])
     os.system('mkdir %s -p'%plot_dir)
@@ -590,77 +666,46 @@ def Write_exp(settings_file):
             f.write('%7.2f      '%(exp_data_reduced_range_plot['xvals'][i]) + s +'\n' )
             f.write('%7.2f      '%(exp_data_reduced_range_plot['xvals'][i]) + s + '\n')#, exp_data_plot[pol_combs[0]][i], exp_data_plot[pol_combs[1]][i], exp_data_plot[pol_combs[2]][i], exp_data_plot[pol_combs[3]][i]))
 
-### Functions added 1st Jul 2024            ###
-### For splitting pdbs into multiple chains ###
-### by Kris Strunge                         ###
+### Functions added 15th Aug 2024        ###
+### Copied from Make_my_funcs.py (old)   ###
+### To use scattering field factors      ###
+### by Khezar Saeed                      ###
+def foward_interface(n1, n2, n3, theta1):
+    theta2 = np.arcsin(n1*np.sin(theta1)/n2)
+    return np.arcsin(n2*np.sin(theta2)/n3)
 
-def first_chain_name(pdbfile):
-    with open(pdbfile) as f:
-        for line in f:
-            line_list = line.split()
-            if line_list[0] == 'ATOM':
-                return line_list[4]
-    print('Error - could not find first chain name - Terminating')
-    sys.exit()
+def q(k0,scat):
+    return 4*k0*sin(scat)
 
-def pdb_chain_splitter(pdb_location, name):
-    pdbfile = pdb_location + name + '.pdb'
-
-#    #Read full pdb and define splits at every "TER"
-#    chains = [[]]
-#    chainid = 0
-#    with open(pdbfile) as f:
-#        for line in f:
-#            line_list = line.split()
-#            if line_list[0] == 'TER':
-#                chains[chainid].append(line)
-#                chainid = chainid + 1
-#                chains.append([])
-#            elif line_list[0] =='ATOM':
-#                chains[chainid].append(line)
-#    chains = chains[:-1] #removes empty array at the end of chains so it doesn't get its own .pdb file
-
-    #Read full pdb and define splits at every change in chain name
-    chains = [[]]
-    chainid = 0
-    chain_name = first_chain_name(pdbfile)
-    with open(pdbfile) as f:
-        for line in f:
-            line_list = line.split()
-            if line_list[0] == 'ATOM' and line_list[4]!=chain_name:
-                chain_name = line_list[4]
-                #print('new chain name',chain_name)
-                chains[chainid].append('TER')
-                chainid = chainid + 1
-                chains.append([])
-            if line_list[0] =='ATOM':
-                chains[chainid].append(line)
-    # Finish last pdb file
-    chains[chainid].append('TER')
-    chainid = chainid + 1
-    
-    #Save atom coordinates of each chain into numbered pdb files ("1.pdb", "2.pdb", "3.pdb", etc.)
-    for i in range(chainid):
-        print(f'Writing "{str(i+1)}.pdb" single chain pdb with {len(chains[i])} atoms')
-        with open(pdb_location+str(i+1)+'.pdb','w') as f:
-            for l in range(len(chains[i])):
-                    f.write(chains[i][l])
-    return chainid
+def A(R,k0, scat):
+    return ((6*1j/(q(k0,scat)**4*R**2))*(
+        2*(1-(q(k0,scat)**2*R**2)/3)*sin(q(k0,scat)*R)-2*q(k0,scat)*R*
+        cos(q(k0,scat)*R)))
 
 
-### Functions added 4th Jul 2024                 ###
-### For Writing combined SFG file for multichain ###
-### by Kris Strunge                              ###
+def B(R,k0,scat):
+    return (6*1j/(q(k0,scat)**4*R**2))*(
+        (q(k0,scat)**2*R**2-2)*sin(q(k0,scat)*R)-
+        q(k0,scat)*R*((q(k0,scat)**2*R**2)/3-2)*cos(q(k0,scat)*R))
 
-def Write_SFG_file(data_dict, filename):
-    headers_l = list(data_dict.keys())
-    headers_s = ' '.join(headers_l)
-    with open(filename, 'w') as f:
-        f.write(headers_s+'\n')
-        for i in range(len(data_dict[headers_l[0]])): # for each index in data arrays
-            for header in headers_l:
-                f.write(f'{data_dict[header][i]:2.6f}  ')
-            f.write('\n')
-#    data_np = np.array([np.array(data_dict[header]) for header in headers_l])
-#    np.savetxt(filename, data_np, header=headers_s)
+
+# Here r is perpendicular and p is parallel
+def Grrr(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return 2*np.pi*(B(R,k0,scat)*Xrrr+A(R,k0, scat)*
+                    (Xrpp+Xprp+Xppr))
+
+def Grpp(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*Xrrr+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xrpp-
+                  A(R,k0, scat)*(Xprp+Xppr))
+
+def Gprp(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*(Xrrr-Xrpp)+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xprp-A(R,k0, scat)*Xppr)
+
+def Gppr(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*(Xrrr-Xrpp)-
+                  A(R,k0, scat)*Xprp+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xppr)
+
 

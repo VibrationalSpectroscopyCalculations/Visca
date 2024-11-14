@@ -1,6 +1,6 @@
-name = 7APP_closed_wt_lard
-pdb_location = /home/kris/Documents/visca-select-reflection/example/orient_structure
-steps = 5
+name = 1AO6_HSA
+pdb_location = /home/kris/Documents/visca-select-reflection/example/orient_structure/multichain
+steps = 2
 RSS_range_i = 1575
 RSS_range_f = 1680
 exp_data_location = /home/kris/Documents/visca-select-reflection/example/experimental_spectra/

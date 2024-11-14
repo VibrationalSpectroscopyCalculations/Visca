@@ -48,7 +48,7 @@ for i,f,RSS in zip(RSS_data['initial_frame'],RSS_data['final_frame'],RSS_data['R
         print(spec_file,'already exist')
     else: #use visca plotter to calculate spectra with fresnel factors in sfg_pol_combs
         print(spec_file,'Calculating')
-        command = (f'visca select_plotter {settings_file} {int(i)} {int(f)} -noplot > /dev/null')
+        command = (f'visca select_scattering_plotter {settings_file} {int(i)} {int(f)} -noplot > /dev/null')
         print(command)
         os.system(command)
 #        visca.Write_plot(settings_file, str(int(i)), str(int(f)))

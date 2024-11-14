@@ -62,7 +62,7 @@ install: visca.out ViscaSelect_parameters.inp $(BINDIR)/visca
 	@printf '\nViSCa was installed\n'
 
 clean: 
-	$(RM) visca visca.out ViscaSelect_parameters.inp ViscaOrient_parameters.inp *.mod
+	$(RM) visca visca.out ViscaSelect_parameters.inp ViscaOrient_parameters.inp ViscaScatteringOrient.inp *.mod
 	$(RM) -r select_scripts/__pycache__ orient_scripts/__pycache__ __pycache__
 	source $(BINDIR)/unautocomplete.sh
 	$(RM) $(BINDIR)/visca $(BINDIR)/ViscaSelect_parameters.inp $(BINDIR)/ViscaOrient_parameters.inp

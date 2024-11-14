@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import cos, sin, exp
 from scipy import interpolate
 from pathlib import Path
 import os, sys
@@ -663,4 +664,45 @@ def Write_SFG_file(data_dict, filename):
             f.write('\n')
 #    data_np = np.array([np.array(data_dict[header]) for header in headers_l])
 #    np.savetxt(filename, data_np, header=headers_s)
+### Functions added 31st Jul 2024        ###
+### Copied from Make_my_funcs.py (old)   ###
+### To use scattering field factors      ###
+### by Khezar Saeed                      ###
+def foward_interface(n1, n2, n3, theta1):
+    theta2 = np.arcsin(n1*np.sin(theta1)/n2)
+    return np.arcsin(n2*np.sin(theta2)/n3)
+
+def q(k0,scat):
+    return 4*k0*sin(scat)
+
+def A(R,k0, scat):
+    return ((6*1j/(q(k0,scat)**4*R**2))*(
+        2*(1-(q(k0,scat)**2*R**2)/3)*sin(q(k0,scat)*R)-2*q(k0,scat)*R*
+        cos(q(k0,scat)*R)))
+
+
+def B(R,k0,scat):
+    return (6*1j/(q(k0,scat)**4*R**2))*(
+        (q(k0,scat)**2*R**2-2)*sin(q(k0,scat)*R)-
+        q(k0,scat)*R*((q(k0,scat)**2*R**2)/3-2)*cos(q(k0,scat)*R))
+
+
+# Here r is perpendicular and p is parallel
+def Grrr(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return 2*np.pi*(B(R,k0,scat)*Xrrr+A(R,k0, scat)*
+                    (Xrpp+Xprp+Xppr))
+
+def Grpp(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*Xrrr+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xrpp-
+                  A(R,k0, scat)*(Xprp+Xppr))
+
+def Gprp(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*(Xrrr-Xrpp)+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xprp-A(R,k0, scat)*Xppr)
+
+def Gppr(Xrrr, Xrpp, Xprp, Xppr,R,k0,scat):
+    return np.pi*(A(R,k0, scat)*(Xrrr-Xrpp)-
+                  A(R,k0, scat)*Xprp+
+                  (A(R,k0, scat)+2*B(R,k0, scat))*Xppr)
 

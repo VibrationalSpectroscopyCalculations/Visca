@@ -1,6 +1,7 @@
 import itertools, os, sys
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import cos, sin, exp
 import visca_funcs as visca
 #from pathlib import Path
 #home = str(Path.home())
@@ -201,6 +202,17 @@ lowest_RSS = {'value': np.infty, 'comb': 'none', 'out_string':'', 'RSSs':{pol_co
 sfg_pol_comb_path = work_dir+'/sfg_pol_combs'
 if not os.path.exists(sfg_pol_comb_path):
     os.mkdir(sfg_pol_comb_path)
+R = float(settings.get('R'))
+#scat = float(settings.get('scat_angle'))*np.pi/180 
+scat_min = float(settings.get('scat_min'))
+scat_max = float(settings.get('scat_max'))
+scat_range = int(scat_max-scat_min+1)
+beta = float(settings.get('beta'))*np.pi/180 
+alpha = float(settings.get('alpha'))*np.pi/180 
+
+k0 = 2*np.pi*(1/float(settings.get('lambda_vis'))+1e7/(float(settings.get('omega_ir')))) #3448 is used for the theory paper
+#q=visca.q(k0, scat)
+w = (k0**-1)*2*np.pi
 #sfg_file = pro_calc_data.keys()
 for sfg_file in pro_calc_data:
     out_string = sfg_file[:-4]
@@ -208,93 +220,46 @@ for sfg_file in pro_calc_data:
     if 'pol_comb_sfg'+sfg_file[:-4]+'.txt' not in os.listdir(path=sfg_pol_comb_path):
         print(f'Combining tensor elements for {sfg_file}',file=sys.__stdout__)
         sfg_data = {key:np.array(sfg_data[key]) for key in sfg_data} #Put data into numpy array for easy vectorized math
-    
-        SSP = np.square(np.abs( fresnel[0] * (sfg_data["Re(YYZ)"] + 1.0j*sfg_data["Im(YYZ)"]) )).real
-        
-        SPS = np.square(np.abs( fresnel[1] * (sfg_data["Re(YZY)"] + 1.0j*sfg_data["Im(YZY)"]) )).real
-        
-        PSS = np.square(np.abs( fresnel[2] * (sfg_data["Re(ZYY)"] + 1.0j*sfg_data["Im(ZYY)"]) )).real
-        
-        X_XXZ = -fresnel[3] * (sfg_data["Re(YYZ)"] + 1.0j*sfg_data["Im(YYZ)"])
-        X_XZX = -fresnel[4] * (sfg_data["Re(YZY)"] + 1.0j*sfg_data["Im(YZY)"])
-        X_ZXX = +fresnel[5] * (sfg_data["Re(ZYY)"] + 1.0j*sfg_data["Im(ZYY)"])
-        X_ZZZ = +fresnel[6] * (sfg_data["Re(ZZZ)"] + 1.0j*sfg_data["Im(ZZZ)"])
-        PPP = np.square(np.abs( X_XXZ + X_XZX + X_ZXX + X_ZZZ )).real
-        
-        X_ZYX = +fresnel[7] * (sfg_data["Re(ZYX)"] + 1.0j*sfg_data["Im(ZYX)"])
-        X_XYZ = -fresnel[8] * (sfg_data["Re(XYZ)"] + 1.0j*sfg_data["Im(XYZ)"])
-        PSP = np.square(np.abs( X_ZYX + X_XYZ )).real
-        
-        X_YZX = +fresnel[9]  * (sfg_data["Re(YZX)"] + 1.0j*sfg_data["Im(YZX)"])
-        X_YXZ = -fresnel[10] * (sfg_data["Re(YXZ)"] + 1.0j*sfg_data["Im(YXZ)"])
-        SPP = np.square(np.abs( X_YZX + X_YXZ )).real
-        
-        X_ZXY = +fresnel[11] * (sfg_data["Re(ZXY)"] + 1.0j*sfg_data["Im(ZXY)"])
-        X_XZY = -fresnel[12] * (sfg_data["Re(XZY)"] + 1.0j*sfg_data["Im(XZY)"])
-        PPS = np.square(np.abs( X_ZXY + X_XZY )).real
-    ##Khezar's old code - Did not support complex fresnel factors and has a bug in the PPP linear combination
-    #    Im_YYZ = np.array(sfg_data["Im(YYZ)"])
-    #    Re_YYZ = np.array([sfg_data["Re(YYZ)"]])
-    #    SSP_fresnel2 = (float(fresnel[0]) ** 2)
-    #    SSP = SSP_fresnel2 * (np.square(Im_YYZ) + np.square(Re_YYZ))
-    #
-    #    Im_YZY = np.array(sfg_data["Im(YZY)"])
-    #    Re_YZY = np.array(sfg_data["Re(YZY)"])
-    #    SPS_fresnel2 = (float(fresnel[1]) ** 2)
-    #    SPS = SPS_fresnel2 * (np.square(Im_YZY) + np.square(Re_YZY))
-    #
-    #    Im_ZYY = np.array(sfg_data["Im(ZYY)"])
-    #    Re_ZYY = np.array(sfg_data["Re(ZYY)"])
-    #    PSS_fresnel2 = (float(fresnel[2]) ** 2)
-    #    PSS = PSS_fresnel2 * (np.square(Im_ZYY) + np.square(Re_ZYY))
-    #
-    #    Im_YYZ = np.array(sfg_data["Im(YYZ)"])
-    #    Re_YYZ = np.array(sfg_data["Re(YYZ)"])
-    #    Im_YZY = np.array(sfg_data["Im(YZY)"])
-    #    Re_YZY = np.array(sfg_data["Re(YZY)"])
-    #    Im_ZYY= np.array(sfg_data["Im(ZYY)"])
-    #    Re_ZYY = np.array(sfg_data["Re(ZYY)"])
-    #    Im_ZZZ = np.array(sfg_data["Im(ZZZ)"])
-    #    Re_ZZZ = np.array(sfg_data["Re(ZZZ)"])
-    #    XXZ_fresnel = (float(fresnel[3]))
-    #    XZX_fresnel = (float(fresnel[4]))
-    #    ZXX_fresnel = (float(fresnel[5]))
-    #    ZZZ_fresnel = (float(fresnel[6]))
-    #    PPP_re = -XXZ_fresnel * Re_YYZ - XZX_fresnel * Re_YZY + ZXX_fresnel * Re_ZYY + ZZZ_fresnel * Re_ZZZ
-    #    PPP_im = XXZ_fresnel * Im_YYZ - XZX_fresnel * Im_YZY - ZXX_fresnel * Im_ZYY - ZZZ_fresnel * Im_ZZZ
-    #    PPP = np.square(PPP_re) + np.square(PPP_im)
-    #    Im_ZYX = np.array(sfg_data["Im(ZYX)"])
-    #    Re_ZYX = np.array(sfg_data["Re(ZYX)"])
-    #    Im_XYZ = np.array(sfg_data["Im(XYZ)"])
-    #    Re_XYZ = np.array(sfg_data["Re(XYZ)"])
-    #    ZYX_fresnel = (float(fresnel[7]))
-    #    XYZ_fresnel = (float(fresnel[8]))
-    #    PSP_re = ZYX_fresnel * Re_ZYX - XYZ_fresnel * Re_XYZ
-    #    PSP_im = ZYX_fresnel * Im_ZYX - XYZ_fresnel * Im_XYZ
-    #    PSP = np.square(PPP_re) + np.square(PPP_im)
-    #
-    #    Im_YZX = np.array(sfg_data["Im(YZX)"])
-    #    Re_YZX = np.array(sfg_data["Re(YZX)"])
-    #    Im_YXZ = np.array(sfg_data["Im(YXZ)"])
-    #    Re_YXZ = np.array(sfg_data["Re(YXZ)"])
-    #    YZX_fresnel = (float(fresnel[9]))
-    #    YXZ_fresnel = (float(fresnel[10]))
-    #    SPP_re = YZX_fresnel * Re_YZX - YXZ_fresnel * Re_YXZ
-    #    SPP_im = YZX_fresnel * Im_YZX - YXZ_fresnel * Im_YXZ
-    #    SPP = np.square(SPP_re) + np.square(SPP_im)
-    #
-    #    Im_ZXY = np.array(sfg_data["Im(ZXY)"])
-    #    Re_ZXY = np.array(sfg_data["Re(ZXY)"])
-    #    Im_XZY = np.array(sfg_data["Im(XZY)"])
-    #    Re_XZY = np.array(sfg_data["Re(XZY)"])
-    #    ZXY_fresnel = (float(fresnel[11]))
-    #    XZY_fresnel = (float(fresnel[12]))
-    #    PPS_re = ZXY_fresnel * Re_ZXY - XZY_fresnel * Re_XZY
-    #    PPS_im = ZXY_fresnel * Im_ZXY - XZY_fresnel * Im_XZY
-    #    PPS = np.square(PPS_re) + np.square(PPS_im)
-    
-        xvals = sfg_data["#Frequency"]
-        sfg_pol_comb = np.vstack((xvals, SSP, PPP, SPS, PSS, PSP, SPP, PPS)).T
+        Grrr = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Gppr = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Gprp = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Grpp = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Xrrr = np.array(sfg_data["Re(ZZZ)"]) + 1j*np.array(sfg_data["Im(ZZZ)"], dtype = "complex")
+        Xrpp = np.array(sfg_data["Re(ZYY)"]) + 1j*np.array(sfg_data["Im(ZYY)"], dtype = "complex")
+        Xprp = np.array(sfg_data["Re(YZY)"]) + 1j*np.array(sfg_data["Im(YZY)"], dtype = "complex")
+        Xppr = np.array(sfg_data["Re(YYZ)"]) + 1j*np.array(sfg_data["Im(YYZ)"], dtype = "complex")
+        xvals = np.array(sfg_data["#Frequency"])
+        Eppp =np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Essp =np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Esps =np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        Epss =np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+        for a in range(scat_range):
+            for n in range(len(sfg_data["#Frequency"])):
+                Grrr[n] = (visca.Grrr(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,np.radians(scat_min+a)))
+                Gppr[n] = (visca.Gppr(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,np.radians(scat_min+a)))
+                Gprp[n] = (visca.Gprp(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,np.radians(scat_min+a)))
+                Grpp[n] = (visca.Grpp(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,np.radians(scat_min+a)))
+            
+            coef = (w**2*exp(1j*k0*R))/(2*3e8**2*R)
+
+            Eppp += -coef*(cos(np.radians(scat_min+a)/2)*((Grrr+Grpp)*cos(beta)+(Grrr-Grpp)*cos(np.radians(scat_min+a)-beta + 2*alpha))- sin(np.radians(scat_min+a)/2)*((Gppr-Gprp)*sin(beta)+(Gprp+Gppr)*sin(np.radians(scat_min+a)-beta + 2*alpha)))
+
+            Essp += -coef*Gppr*(cos(beta) * (np.radians(scat_min+a)/2+alpha) + sin(beta) * sin(np.radians(scat_min+a)/2+alpha))
+
+            Esps += -coef*Gprp*cos(np.radians(scat_min+a)/2+alpha)
+
+            Epss += -coef*Grpp*cos(np.radians(scat_min+a)/2)
+
+        Eppp_avg = np.divide(Eppp,scat_range)
+        Essp_avg = np.divide(Essp,scat_range)
+        Esps_avg = np.divide(Esps,scat_range)
+        Epss_avg = np.divide(Epss,scat_range)
+
+        PPP = (abs(Eppp_avg)**2)
+        SSP = (abs(Essp_avg)**2)
+        SPS = (abs(Esps_avg)**2)
+        PSS = (abs(Epss_avg)**2)
+        sfg_pol_comb = np.vstack((xvals, SSP, PPP, SPS, PSS)).T
         np.savetxt(sfg_pol_comb_path+'/pol_comb_sfg'+sfg_file[:-4]+'.txt', sfg_pol_comb, fmt='%1.9f')
     else:
         sfg_pol_comb = np.loadtxt(sfg_pol_comb_path+'/pol_comb_sfg'+sfg_file[:-4]+'.txt')
@@ -305,10 +270,7 @@ for sfg_file in pro_calc_data:
 		 'SSP': sfg_pol_comb[:,1],
 		 'PPP': sfg_pol_comb[:,2],
 		 'SPS': sfg_pol_comb[:,3],
-		 'PSS': sfg_pol_comb[:,4],
-		 'PSP': sfg_pol_comb[:,5],
-		 'SPP': sfg_pol_comb[:,6],
-		 'PPS': sfg_pol_comb[:,7]}
+		 'PSS': sfg_pol_comb[:,4]}
     N_calc = max(calc_data[settings['Normalize_wrt']])
     calcs = {pol_comb: visca.Normalize(calc_data[pol_comb],N_calc) for pol_comb in pol_combs}
     calcs['xvals'] = calc_data['xvals']

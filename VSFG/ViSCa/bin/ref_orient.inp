@@ -17,6 +17,7 @@ Normalize_wrt = PPP
 fortran_script = visca.out
 fortran_script_location = $VISCADIR/ViSCa/
 vmd_command = vmd
+post_clean = True
 tcl_scripts_location = $VISCADIR/ViSCa/orient_scripts
 RSS_file = RSS.txt
 exp_std = 0.0400

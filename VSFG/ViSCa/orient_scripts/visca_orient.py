@@ -38,6 +38,9 @@ elif visca.Fix_pdbfile_TER(pdbfilename):
 else:
     print('Unable to correct PDB file -- Aborting')
     sys.exit()
+#Check for hydrogen atoms in pdb file
+if visca.Check_pdbfile_hydrogen(pdbfilename, out_log):
+    print('PDB file checked - Contained hydrogen atoms\n')
 os.system('cp "%s%s.pdb" %s'%(settings['pdb_location'], settings['name'], dcd_dir))
 
 #Reading input limits
@@ -81,7 +84,7 @@ for theta in thetas:
             print('Making .dcd for theta= %i, phi= %i and psi= %i'%(theta,phi,psi))
             print(f'VMD orienting {i} out of {M} orientations. Calculating theta= {theta}, phi= {phi} and psi= {psi}', file=sys.__stdout__)
             i += 1
-            os.system(settings['vmd_command']+' -dispdev text -e "'+settings['tcl_scripts_location']+'rotator_theta_phi_psi.tcl" -args "%s.pdb" %i %i %i > ../%s'%(settings['name'], theta, phi, psi, VMD_log))
+            os.system(settings['vmd_command']+' -dispdev text -e "'+settings['tcl_scripts_location']+'rotator_theta_phi_psi.tcl" -args "%s.pdb" %i %i %i > ../%s 2> ../%s'%(settings['name'], theta, phi, psi, VMD_log, VMD_log))
 print("Done with making rotating dcds via VMD into pro-dcd files\nOutput can be found in %s/%s"%(work_dir,VMD_log))
 print('Leaving %s'%dcd_dir)
 os.chdir('../../../')
@@ -178,20 +181,20 @@ for i,pro_dcd in enumerate(pro_dcds):
     try:
         pro_calc_data[pro_dcd] = visca.Read_calc_SFG(sfg_file_name)
     except FileNotFoundError:
-        print(f'\nError - {sfg_file_name} was not found.\nThis is very liely because the ViSCa Fortran script did not run correctly.\nCheck your .pdb and .dcd files are correctly formatted and their path is correct in the input file.\nCheck that your input file correctly specifies the path to the fortran script ("visca.out").\nOtherwise consider crying a bit.',file=sys.__stdout__)
+        print(f'\nError - {sfg_file_name} was not found.\nThis is very likely because the ViSCa Fortran script did not run correctly.\nCheck your .pdb (formatting issues in .pdb files are common!) and .dcd files are correctly formatted and their path is correct in the input file.\nCheck that your input file correctly specifies the correct path to the fortran script ("visca.out").\nOtherwise consider seeking technical (or emotional) support.',file=sys.__stdout__)
         sys.exit()
     length_of_data = len(pro_calc_data[pro_dcd][list(pro_calc_data[pro_dcd].keys())[0]])
 print('All Fortran calculations - Done but might still have errors (check if *_SFG.txt are correct')
-print('Leaving dcd directory')
+print('Leaving dcd directory\n')
 os.chdir('../../../')
 print('Calculating Fresnel factors...')
 #Calculate Fresnel factors
-fresnel = visca.fresnel_factors(float(settings.get('lambda_vis')), float(settings.get('omega_ir')), float(settings.get('n1_sfg')), float(settings.get('n1_vis')), float(settings.get('n1_ir')), float(settings.get('n2_sfg')), float(settings.get('n2_vis')), float(settings.get('n2_ir')), float(settings.get('ni_sfg')), float(settings.get('ni_vis')), float(settings.get('ni_ir')), np.radians(float(settings.get('theta1_vis'))), np.radians(float(settings.get('theta1_ir'))))
+fresnel = visca.fresnel_factors(float(settings.get('lambda_vis')), float(settings.get('omega_ir')), complex(settings.get('n1_sfg')), complex(settings.get('n1_vis')), complex(settings.get('n1_ir')), complex(settings.get('n2_sfg')), complex(settings.get('n2_vis')), complex(settings.get('n2_ir')), float(settings.get('ni_sfg')), float(settings.get('ni_vis')), float(settings.get('ni_ir')), np.radians(float(settings.get('theta1_vis'))), np.radians(float(settings.get('theta1_ir'))))
 print('Fresnel factors calculated')
 print(fresnel)
 
 print('\nCombining different pro-dcd results and deriving trajectory with lowest RSS:')
-lowest_RSS = {'value': np.infty, 'comb': 'none'}
+lowest_RSS = {'value': np.infty, 'comb': 'none', 'out_string':'', 'RSSs':{pol_comb:np.infty for pol_comb in pol_combs}}
 #Calculating SFG data in terms of polarisation combinations from lab frame components
 sfg_pol_comb_path = work_dir+'/sfg_pol_combs'
 if not os.path.exists(sfg_pol_comb_path):
@@ -310,6 +313,22 @@ if 'RSS_file' in settings.keys():
                 f.write('%i             %i             %3.5f\n'%(theta,psi,RSS))
 
 
+#Cleaning procedure - deleting tracing dcd files and SFG files
+if 'post_clean' not in settings.keys() or settings['post_clean']=='True':
+    print('Post Cleaning Initialized:')
+
+    print(f'Cleaning {dcd_dir}')
+    os.system(f'rm {dcd_dir}/theta*.dcd')
+    os.system(f'rm {dcd_dir}/theta*_SFG.txt')
+    os.system(f'touch {dcd_dir}/this_folder_was_cleaned.txt')
+    os.system(f'date >> {dcd_dir}/this_folder_was_cleaned.txt')
+    os.system(f'printf "All .dcd and .txt files was removed from this folder after running {sys.argv[0]}" >> {dcd_dir}/this_folder_was_cleaned.txt')
+    
+    print(f'Cleaning {sfg_pol_comb_path}')
+    os.system(f'rm {sfg_pol_comb_path}/pol_comb_sfg*.txt')
+    os.system(f'touch {sfg_pol_comb_path}/this_folder_was_cleaned.txt')
+    os.system(f'date >> {sfg_pol_comb_path}/this_folder_was_cleaned.txt')
+    os.system(f'printf "All .txt files was removed from this folder after running {sys.argv[0]}" >> {sfg_pol_comb_path}/this_folder_was_cleaned.txt')
 
 
 

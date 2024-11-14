@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import sin, cos, exp
 import os, sys
 import visca_funcs as visca
 #Read user inputs
@@ -70,25 +71,6 @@ command = 'time "'+fortran_script+'" -pdb '+settings['name']+'.pdb -spec_min 150
 os.system(command)
 os.chdir('../../../')
 
-#Calculate Fresnel factors
-fresnel = visca.fresnel_factors(float(settings.get('lambda_vis')), 
-				float(settings.get('omega_ir')), 
-				complex(settings.get('n1_sfg')), 
-				complex(settings.get('n1_vis')), 
-				complex(settings.get('n1_ir')), 
-				complex(settings.get('n2_sfg')), 
-				complex(settings.get('n2_vis')), 
-				complex(settings.get('n2_ir')), 
-				complex(settings.get('ni_sfg')), 
-				complex(settings.get('ni_vis')), 
-				complex(settings.get('ni_ir')), 
-				np.radians(float(settings.get('theta1_vis'))), 
-				np.radians(float(settings.get('theta1_ir'))))
-print('Fresnel factors:')
-fresnel_pol_combs = ['SSP', 'SPS', 'PSS', 'PPP(XXZ)', 'PPP(XZX)', 'PPP(ZXX)', 'PPP(ZZZ)', 'PSP(ZYX)', 'PSP(XYZ)', 'SPP(YZX)', 'SPP(YXZ)', 'PPS(ZXY)', 'PPS(XZY)',]
-for i,p in enumerate(fresnel_pol_combs):
-    print(f'{p}: {fresnel[i]:2.4f}')
-
 #Calculating SFG data in terms of polarisation combinations from lab frame components
 sfg_pol_comb_path = work_dir+'/sfg_pol_combs'
 if not os.path.exists(sfg_pol_comb_path):
@@ -97,33 +79,46 @@ sfg_file_name = split_dcd+'_SFG.txt'
 sfg_data = visca.Read_calc_SFG(plot_dir+'/'+sfg_file_name)
 sfg_data = {key:np.array(sfg_data[key]) for key in sfg_data}
 
-SSP = np.square(np.abs( fresnel[0] * (sfg_data["Re(YYZ)"] + 1.0j*sfg_data["Im(YYZ)"]) )).real
+R = float(settings.get('R'))
+scat = float(settings.get('scat_angle'))*np.pi/180 
 
-SPS = np.square(np.abs( fresnel[1] * (sfg_data["Re(YZY)"] + 1.0j*sfg_data["Im(YZY)"]) )).real
+beta = float(settings.get('beta'))*np.pi/180 
+alpha = float(settings.get('alpha'))*np.pi/180 
 
-PSS = np.square(np.abs( fresnel[2] * (sfg_data["Re(ZYY)"] + 1.0j*sfg_data["Im(ZYY)"]) )).real
+k0 = 2*np.pi*(1/float(settings.get('lambda_vis'))+1e7/(float(settings.get('omega_ir')))) #3448 is used for the theory paper
+q=visca.q(k0, scat)
+w = (k0**-1)*2*np.pi
+Grrr = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+Gppr = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+Gprp = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+Grpp = np.zeros(len(sfg_data["#Frequency"]), dtype = "complex")
+Xrrr = np.array(sfg_data["Re(ZZZ)"]) + 1j*np.array(sfg_data["Im(ZZZ)"], dtype = "complex")
+Xrpp = np.array(sfg_data["Re(ZYY)"]) + 1j*np.array(sfg_data["Im(ZYY)"], dtype = "complex")
+Xprp = np.array(sfg_data["Re(YZY)"]) + 1j*np.array(sfg_data["Im(YZY)"], dtype = "complex")
+Xppr = np.array(sfg_data["Re(YYZ)"]) + 1j*np.array(sfg_data["Im(YYZ)"], dtype = "complex")
+xvals = np.array(sfg_data["#Frequency"])
+for n in range(len(sfg_data["#Frequency"])):
+    Grrr[n] = visca.Grrr(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,scat)
+    Gppr[n] = visca.Gppr(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,scat)
+    Gprp[n] = visca.Gprp(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,scat)
+    Grpp[n] = visca.Grpp(Xrrr[n], Xrpp[n], Xprp[n], Xppr[n],R,k0,scat)
+coef = (w**2*exp(1j*k0*R))/(2*3e8**2*R)
 
-X_XXZ = -fresnel[3] * (sfg_data["Re(YYZ)"] + 1.0j*sfg_data["Im(YYZ)"])
-X_XZX = -fresnel[4] * (sfg_data["Re(YZY)"] + 1.0j*sfg_data["Im(YZY)"])
-X_ZXX = +fresnel[5] * (sfg_data["Re(ZYY)"] + 1.0j*sfg_data["Im(ZYY)"])
-X_ZZZ = +fresnel[6] * (sfg_data["Re(ZZZ)"] + 1.0j*sfg_data["Im(ZZZ)"])
-PPP = np.square(np.abs( X_XXZ + X_XZX + X_ZXX + X_ZZZ )).real
+Eppp = -coef*(cos(scat/2)*((Grrr+Grpp)*cos(beta)+(Grrr-Grpp)*cos(scat-beta + 2*alpha))- sin(scat/2)*((Gppr-Gprp)*sin(beta)+(Gprp+Gppr)*sin(scat-beta + 2*alpha)))
 
-X_ZYX = +fresnel[7] * (sfg_data["Re(ZYX)"] + 1.0j*sfg_data["Im(ZYX)"])
-X_XYZ = -fresnel[8] * (sfg_data["Re(XYZ)"] + 1.0j*sfg_data["Im(XYZ)"])
-PSP = np.square(np.abs( X_ZYX + X_XYZ )).real
+Essp = -coef*Gppr*(cos(beta) * (scat/2+alpha) + sin(beta) * sin(scat/2+alpha))
 
-X_YZX = +fresnel[9]  * (sfg_data["Re(YZX)"] + 1.0j*sfg_data["Im(YZX)"])
-X_YXZ = -fresnel[10] * (sfg_data["Re(YXZ)"] + 1.0j*sfg_data["Im(YXZ)"])
-SPP = np.square(np.abs( X_YZX + X_YXZ )).real
+Esps = -coef*Gprp*cos(scat/2+alpha)
 
-X_ZXY = +fresnel[11] * (sfg_data["Re(ZXY)"] + 1.0j*sfg_data["Im(ZXY)"])
-X_XZY = -fresnel[12] * (sfg_data["Re(XZY)"] + 1.0j*sfg_data["Im(XZY)"])
-PPS = np.square(np.abs( X_ZXY + X_XZY )).real
+Epss = -coef*Grpp*cos(scat/2)
 
-xvals = sfg_data["#Frequency"]
-sfg_pol_comb = np.vstack((xvals, SSP, PPP, SPS, PSS, PSP, SPP, PPS)).T
-np.savetxt(sfg_pol_comb_path+'/pol_comb_sfg'+sfg_file_name[:-8]+'.txt', sfg_pol_comb, fmt='%1.9f')
+PPP = (abs(Eppp)**2)
+SSP = (abs(Essp)**2)
+SPS = (abs(Esps)**2)
+PSS = (abs(Epss)**2)
+sfg_pol_comb = np.vstack((xvals, SSP, PPP, SPS, PSS)).T
+np.savetxt(sfg_pol_comb_path+'/pol_comb_sfg'+sfg_file_name[:-8]+'.txt', sfg_pol_comb, fmt='%1.9g')
+
 
 #sfg_pol_comb = np.loadtxt(work_dir+'/sfg_pol_combs/pol_comb_sfg'+split_dcd+'.txt')
 #calc_data = {'xvals':sfg_pol_comb[:,0], 
@@ -137,11 +132,7 @@ calc_data = visca.Read_pol_comb_file(work_dir+'/sfg_pol_combs/pol_comb_sfg'+spli
 potential_pol_combs = ['SSP',
                        'PPP',
                        'SPS',
-                       'PSS',
-                       'PSP',
-                       'PPS',
-                       'SPP',
-                       'SSS']
+                       'PSS']
 pol_combs = [pol_comb for pol_comb in potential_pol_combs if pol_comb in settings.keys()]
 print('Polarization Combinations found in input file:')
 print(pol_combs,'\n')

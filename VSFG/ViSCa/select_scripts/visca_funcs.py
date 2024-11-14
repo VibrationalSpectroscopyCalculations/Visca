@@ -414,14 +414,17 @@ def Check_pdbfile(pdb_filename):
     ATOM_flag = False
     with open(pdb_filename) as pdbfile:
         for line in pdbfile:
-            if line.split()[0] == 'ATOM':
+            if line.split()[0] == 'ATOM': # Identify ATOM section
                 ATOM_flag = True
-            if ATOM_flag and line.split()[0]!='ATOM':
+            if ATOM_flag and line.split()[0]!='ATOM': #Check that ATOM section ends with TER
                 if line.split()[0]=='TER':
                     return True
                 else:
-                    print(f'Warning: Missing "TER" flag in pdbfile {pdb_filename}')
+                    print(f'Warning: Missing "TER" flag in pdbfile {pdb_filename} - trying to autocorrect')
                     return False
+        if ATOM_flag and not TER_flag: #file ended with unfinished ATOM section: adding TER
+            print(f'Warning: Missing "TER" line in pdbfile {pdb_filename} - trying to autocorrect')
+            return False
     print(f'Warning: Major error in pdb format - Check your pdbfile {pdb_filename}')
     return False
                 
@@ -436,15 +439,50 @@ def Fix_pdbfile_TER(pdb_filename):
     with open(pdb_backup_filename) as pdbfile_old:
         with open(pdb_filename,'w') as pdbfile:
             for line in pdbfile_old:
+                line_list = line.split()
                 pdbfile.write(line)
-                if line.split()[0]=='ATOM':
+                if line_list[0]=='ATOM':
                     ATOM_flag = True
-                if ATOM_flag and line.split()[0]!='ATOM':
+                if ATOM_flag and line_list[0]!='ATOM':
                     ATOM_flag = False
                     pdbfile.write('TER\n')
                     TER_flag =  True
+            if len(line_list)>0 and line_list[0]=='ATOM': #file ended with unfinished ATOM section: adding TER
+                ATOM_flag = False
+                pdbfile.write('TER\n')
+                TER_flag = True
     return TER_flag
 
+def Check_pdbfile_hydrogen(pdb_filename, out_log):
+    N_atoms = 0
+    N_hydrogens = 0
+    N_carbons = 0
+    N_oxygens = 0
+    N_nitrogens = 0
+    with open(pdb_filename) as pdbfile:
+        for line in pdbfile:
+            line_list = line.split()
+            if len(line_list)<1: #skip empty lines
+                continue
+            if line_list[0]=='ATOM':
+                N_atoms += 1
+                atom_label = line_list[2][0]
+                if atom_label=='H':
+                    N_hydrogens += 1
+                if atom_label=='C':
+                    N_carbons += 1
+                if atom_label=='O':
+                    N_oxygens += 1
+                if atom_label=='N':
+                    N_nitrogens += 1
+    N_unknown = N_atoms - N_hydrogens - N_carbons - N_oxygens - N_nitrogens
+    with open(out_log, 'a') as logfile:
+        logfile.write(f'\nPDB check found:\n   {N_carbons} carbon atoms\n   {N_hydrogens} hydrogen atoms\n   {N_oxygens} oxygen atoms\n   {N_nitrogens} nitrogen atoms\n   {N_unknown} other atoms\n')   
+    if N_hydrogens/N_atoms < 0.05 or N_hydrogens < 10:
+        print('Error - Too few hydrogens found in pdb file')
+        if input('Continue simulation despite .pdb file having suspiciously few hydrogen atoms? (y/n)')!='y':
+            sys.exit()
+    return True
 
 def Write_plot(settings_file, fi, ff):
     settings = Read_settings(settings_file)

@@ -24,7 +24,7 @@ test: test_select test_orient
 	@printf "\nAll test finished without crashing - Correct behavior is still not guaranteed but at least all scripts can run.\n"
 
 test_select:
-	@printf "\nTest initialized - Close any plots or windows that opens during the test for the tst to continue.\n\n"
+	@printf "\nTest initialized - Close any plots or windows that opens during the test for the test to continue.\n\n"
 	visca select ViscaSelect_parameters.inp
 	@printf "visca select - succes\n\n"
 	visca select_RSS_plot ViscaSelect_parameters.inp
@@ -51,10 +51,15 @@ test_orient:
 	@printf "visca orient_shaded_plot - succes\n\n"
 	visca orient_visualize_ensemble ViscaOrient_parameters.inp
 	@printf "visca orient_visualize_ensemble - succes\n\n"
+	visca orient_multichain orient_structure/multichain/ViscaOrientmultichain_parameters.inp -autoyes
+	@printf "visca orient_multichain - succes\n\n"
 
 clean: 
 	$(RM) -r Working_Directory_7APP_closed_wt_lard
+	$(RM) -r Working_Directory_8SBD_insulin
+	$(RM) -r Working_Directory_1AO6_HSA
 	$(RM) -r results
+	find orient_structure/multichain/ ! -name '8SBD_insulin.pdb' ! -name '1AO6_HSA.pdb' ! -name 1BOM_insulin.pdb ! -name ViscaOrientmultichain_parameters.inp -type f -exec rm -f {} +
 
 
 

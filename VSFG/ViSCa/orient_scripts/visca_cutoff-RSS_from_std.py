@@ -50,9 +50,10 @@ while calc_std < exp_std:
     spec_files.append(spec_file)
     if spec_file in plot_dir_files:
         print(spec_file,'already exist')
-    else:
+    else: #use visca plotter to calculate spectra with fresnel factors in sfg_pol_combs
         print(spec_file,'Calculating')
-        visca.Write_plot(settings_file, str(int(i_s[i])), str(int(f_s[i])))
+        command = (f'visca orient_plotter {settings_file} {int(i_s[i])} {int(f_s[i])} -noplot')# > /dev/null')
+        os.system(command)
     
     #Read Calculated spectra for processing
     specs = {}

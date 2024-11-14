@@ -52,7 +52,7 @@ while calc_std < exp_std:
         print(spec_file,'already exist')
     else: #use visca plotter to calculate spectra with fresnel factors in sfg_pol_combs
         print(spec_file,'Calculating')
-        command = (f'visca select_plotter {settings_file} {int(i_s[i])} {int(f_s[i])} -noplot > /dev/null')
+        command = (f'visca select_scattering_plotter {settings_file} {int(i_s[i])} {int(f_s[i])} -noplot > /dev/null')
         os.system(command)
     #Read Calculated spectra for processing
     specs = {}
