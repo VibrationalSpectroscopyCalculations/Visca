@@ -193,7 +193,7 @@ for pol_comb in pol_combs: #Baseline correction loop
         exp_data_reduced_range_plot[pol_comb] = [val*factor for val in exp_data_reduced_range_plot[pol_comb]]
 
 #Normalization
-N = max(exp_data_reduced_range[settings['Normalize_wrt']])/1.05 #Normalization constant
+N = max(exp_data_reduced_range[settings['Normalize_wrt']])/1.0 #Normalization constant
 exp_data = {pol_comb: visca.Normalize(exp_data_reduced_range[pol_comb],N) for pol_comb in pol_combs}
 exp_data_plot = {pol_comb: visca.Normalize(exp_data_reduced_range_plot[pol_comb],N) for pol_comb in pol_combs}
 
@@ -223,21 +223,21 @@ for pol_comb in pol_combs[::-1]:
 ##Plot RSS range
 #plt.plot(2*[RSS_range_i],[0,1],'--r')
 #plt.plot(2*[RSS_range_f],[0,1],'--r')
-fs = 12
+fs = 16
 font = {'family' : 'Arial',
         'weight' : 'normal',
         'size'   : fs}
 
 plt.rc('font', **font)
-plt.xticks(fontsize=fs)
-plt.yticks(fontsize=fs)
+plt.xticks(fontsize=fs*0.8)
+plt.yticks(fontsize=fs*0.8)
 
 plt.title(settings['name'][0:4]+f" theta: {theta} degrees psi: {psi} degrees with RSS = {RSS_total:2.4f}")
-plt.xlabel("Frequency",fontsize=fs)
-plt.ylabel("Normalized SFG Intensity",fontsize=fs)
+plt.xlabel("Frequency $[\mathrm{cm}^{-1}]$",font=font)
+plt.ylabel("Normalized VSFG Intensity",font=font)
 plt.xlim([1500, 1800])
 plt.ylim([-0.1, 1.1])
-plt.legend()
+plt.legend(fontsize=fs)
 plt.tight_layout(pad=1)
 plt.savefig(dcdname+'.pdf',dpi=400)
 if not noplot_flag:

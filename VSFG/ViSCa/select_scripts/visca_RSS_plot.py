@@ -49,9 +49,14 @@ frame_separators = [1000, 1000, 1000, 1000]
 for i,frame_separator in enumerate(frame_separators[:-1]):
     plt.plot([frame_separators[i],frame_separators[i+1]], [0,climit],'-.k')
 
-font = 'Arial'
+fs = 16
+font = {'family' : 'Arial',
+        'weight' : 'normal',
+        'size'   : fs}
 
-legend_font = font_manager.FontProperties(family=font)
+plt.xticks(fontsize=fs*0.8)
+plt.yticks(fontsize=fs*0.8)
+legend_font = font_manager.FontProperties(family='Arial')
 plt.xlabel('MD Frame',font=font)
 plt.ylabel('RSS [arb. units]',font=font)
 plt.title('RSS plot of %s'%(settings['name']),font=font)

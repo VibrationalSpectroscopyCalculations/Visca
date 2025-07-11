@@ -1,5 +1,0 @@
-orient multichain method:
-This is a custom version of ViSCa orient that supports multiple protein chains.
-The script assumes that you have N.pdb files in the pdb location specified in the input file. 
-The pdb files needs to each contain one protein chain and be name "1.pdb", "2.pdb", "3.pdb" and so on.
-Note: Vibrational coupling between protein chains are not included, but the interference is coherently summed.

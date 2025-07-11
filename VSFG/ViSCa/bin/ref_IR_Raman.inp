@@ -1,0 +1,7 @@
+name = 9eos
+pdb_location = $VISCADIR/example/ir_raman_structure
+fortran_script = visca.out
+fortran_script_location = $VISCADIR/ViSCa/
+width = 16
+mOH = 400
+Omega0 = 1650

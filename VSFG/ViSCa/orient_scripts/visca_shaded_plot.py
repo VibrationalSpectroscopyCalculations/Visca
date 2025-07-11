@@ -102,10 +102,16 @@ for i,pol_comb in enumerate(pol_combs):
     plt.plot(exp_spec['wavenumber'],exp_spec[pol_comb],colors1[i],lw=0.75)
 
 font = 'Arial'
-legend_font = font_manager.FontProperties(family=font)
-plt.xlabel(r'Wavenumber $[\mathrm{cm}^{-1}]$',font=font)
-plt.ylabel('Normalized VSFG intensity [arb. units]',font=font)
-plt.legend(prop=legend_font)
+fs = 16
+font = {'family' : 'Arial',
+        'weight' : 'normal',
+        'size'   : fs}
+
+plt.xticks(fontsize=fs*0.8)
+plt.yticks(fontsize=fs*0.8)
+plt.xlabel(r'Frequency $[\mathrm{cm}^{-1}]$',font=font)
+plt.ylabel('Normalized VSFG intensity',font=font)
+plt.legend(fontsize=fs)
 plt.title('%s RSS-cutoff = %1.3f'%(work_dir,RSS_cutoff),font=font)
 plt.xlim([1500,1800])
 #plt.xlim([1575,1680])

@@ -16,8 +16,9 @@ viscadir=VISCADIR
 selectdir="$viscadir/select_scripts"
 orientdir="$viscadir/orient_scripts"
 scatteringdir="$viscadir/scattering_scripts"
-validmethods="select select_scattering select_scattering_plotter select_scattering_RSS_cutoff select_scattering_shaded_plot select_RSS_plot select_RSS_cutoff select_plotter select_shaded_plot select_visualize_ensemble orient orient_scattering orient_RSS_plot orient_RSS_cutoff orient_plotter orient_scattering_plotter orient_shaded_plot orient_visualize_ensemble"
-validmethods=("select" "select_scattering" "select_scattering_plotter"  "select_scattering_RSS_cutoff" "select_scattering_shaded_plot" "select_RSS_plot" "select_RSS_cutoff" "select_plotter" "select_shaded_plot" "select_visualize_ensemble" "orient" "orient_scattering" "orient_RSS_plot" "orient_RSS_cutoff" "orient_plotter" "orient_scattering_plotter" "orient_shaded_plot" "orient_visualize_ensemble" "orient_multichain")
+validmethods="select select_scattering select_scattering_plotter select_scattering_RSS_cutoff select_scattering_shaded_plot select_RSS_plot select_RSS_cutoff select_plotter select_shaded_plot select_visualize_ensemble orient orient_scattering orient_RSS_plot orient_RSS_cutoff orient_plotter orient_scattering_plotter orient_shaded_plot orient_visualize_ensemble IR Raman"
+validmethods=("select" "select_scattering" "select_scattering_plotter"  "select_scattering_RSS_cutoff" "select_scattering_shaded_plot" "select_RSS_plot" "select_RSS_cutoff" "select_plotter" "select_shaded_plot" "select_visualize_ensemble" "orient" "orient_scattering" "orient_RSS_plot" "orient_RSS_cutoff" "orient_plotter" "orient_scattering_plotter" "orient_shaded_plot" "orient_visualize_ensemble" "IR" "Raman")
+
 #
 usage (){
 	  echo 
@@ -68,22 +69,6 @@ case $1 in
       scriptname="visca_RSS_plot.py"
       echo "Running $selectdir/$scriptname (Make_RSS_plot.py)"
       cmd="python3 $selectdir/$scriptname $2";;
-   select_scattering ) 
-      scriptname="visca_select_scattering.py"
-      echo "Running $scatteringdir/$scriptname (Make_standalone_deriver-SFS.py)"
-      cmd="python3 $scatteringdir/$scriptname $2";;
-   select_scattering_plotter ) 
-      scriptname="visca_scattering_select_plotter.py"
-      echo "Running $scatteringdir/$scriptname (Make_plotter-SFS.py)"
-      cmd="python3 $scatteringdir/$scriptname $2";;
-   select_scattering_RSS_cutoff ) 
-      scriptname="visca_scattering_cutoff-RSS_from_std.py"
-      echo "Running $scatteringdir/$scriptname (Make_cutoff-RSS_from_std-SFS.py)"
-      cmd="python3 $scatteringdir/$scriptname $2";;
-   select_scattering_shaded_plot ) 
-      scriptname="visca_scattering_shaded_plot.py"
-      echo "Running $scatteringdir/$scriptname (Make_shaded_plot-SFS.py)"
-      cmd="python3 $scatteringdir/$scriptname $2";;
    select_RSS_cutoff )
       scriptname="visca_cutoff-RSS_from_std.py"
       echo "Running $selectdir/$scriptname (Make_cutoff-RSS_from_std.py)"
@@ -104,10 +89,6 @@ case $1 in
       scriptname="visca_orient.py"
       echo "Running $orientdir/$scriptname (Make_orient_theta_phi.py)"
       cmd="python3 $orientdir/$scriptname $2";;
-   orient_scattering )
-      scriptname="visca_orient_scattering.py"
-      echo "Running $scatteringdir/$scriptname (Make_orient_theta_phi-SFS.py)"
-      cmd="python3 $scatteringdir/$scriptname $2";;   
    orient_RSS_plot )
       scriptname="visca_RSS_orient_plot.py"
       echo "Running $orientdir/$scriptname (Make_RSS_rot_plot_thetaphi.py)"
@@ -120,10 +101,6 @@ case $1 in
       scriptname="visca_rot_plot.py"
       echo "Running $orientdir/$scriptname (Make_rot_plot_KS.py)"
       cmd="python3 $orientdir/$scriptname $2";;
-   orient_scattering_plotter )
-      scriptname="visca_rot_plot_scattering.py"
-      echo "Running $scatteringdir/$scriptname (Make_rot_plot_KS-SFS.py)"
-      cmd="python3 $scatteringdir/$scriptname $2";;
    orient_shaded_plot )
       scriptname="visca_shaded_plot.py"
       echo "Running $orientdir/$scriptname (Make_shaded_plot.py)"
@@ -132,8 +109,20 @@ case $1 in
       scriptname="visca_visualize_ensemble.py"
       echo "Running $orientdir/$scriptname (Make_visualize_ensemble.py)"
       cmd="python3 $orientdir/$scriptname $2";;
-   orient_multichain )
-      scriptname="visca_multichain_orient.py"
+   IR )
+      scriptname="visca_IR.py"
+      echo "Running $orientdir/$scriptname"
+      cmd="python3 $orientdir/$scriptname $2";;
+   Raman )
+      scriptname="visca_Raman.py"
+      echo "Running $orientdir/$scriptname"
+      cmd="python3 $orientdir/$scriptname $2";;
+   IR )
+      scriptname="visca_IR.py"
+      echo "Running $orientdir/$scriptname"
+      cmd="python3 $orientdir/$scriptname $2";;
+   Raman )
+      scriptname="visca_Raman.py"
       echo "Running $orientdir/$scriptname"
       cmd="python3 $orientdir/$scriptname $2";;
 esac 

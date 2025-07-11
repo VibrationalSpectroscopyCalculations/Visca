@@ -218,12 +218,17 @@ for pol_comb in pol_combs[::-1]:
 #Plot RSS range
 plt.plot(2*[RSS_range_i],[0,1],'--r')
 plt.plot(2*[RSS_range_f],[0,1],'--r')
-
+fs = 16
+font = {'family' : 'Arial',
+        'weight' : 'normal',
+        'size'   : fs}
 #plt.title("Trajectory "+settings['name']+" frame "+fi+"-"+ff+" with RSS = %2.2f"%RSS_total)
 plt.title(f"Trajectory {settings['name']}. frame {'-'.join(input_args)} with RSS = %2.2f"%RSS_total)
-plt.xlabel("Frequency")
-plt.ylabel("Normalized SFG Intensity")
-plt.legend()
+plt.xticks(fontsize=fs*0.8)
+plt.yticks(fontsize=fs*0.8)
+plt.xlabel("Frequency $[\mathrm{cm}^{-1}]$", font=font)
+plt.ylabel("Normalized VSFG Intensity", font=font)
+plt.legend(fontsize=fs)
 plt.savefig(plot_dir+'/'+split_dcd+'.pdf',dpi=400)
 if not noplot_flag:
     plt.show()

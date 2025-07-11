@@ -35,25 +35,11 @@ done < "$LOCATION/$REFERENCEFILENAME"
 cp $INPUTFILENAME $LOCATION/../../example/
 rm $INPUTFILENAME
 
-############################################
-### Prepare orient multichain input file ###
-############################################
-REFERENCEFILENAME=ref_orient_multichain.inp
-INPUTFILENAME=ViscaOrientmultichain_parameters.inp
-
-#READ REFERENCE AND REPLACE THE VISCADIR TO MAKE INPUTFILE
-while read line; do
-  eval echo "$line" >> $INPUTFILENAME
-done < "$LOCATION/$REFERENCEFILENAME"
-
-cp $INPUTFILENAME $LOCATION/../../example/orient_structure/multichain
-rm $INPUTFILENAME
-
-############################################
-### Prepare scattering orient input file ###
-############################################
-REFERENCEFILENAME=ref_scattering_orient.inp
-INPUTFILENAME=ViscaScatteringOrient_parameters.inp
+#################################
+## Prepare IR_Raman input file ##
+#################################
+REFERENCEFILENAME=ref_IR_Raman.inp
+INPUTFILENAME=ViscaIR_Raman_parameters.inp
 
 #READ REFERENCE AND REPLACE THE VISCADIR TO MAKE INPUTFILE
 while read line; do

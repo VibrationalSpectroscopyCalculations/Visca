@@ -29,22 +29,27 @@
 ##  BINDIR          Directory with ViSCa .sh scripts 	Executes the python scripts
 ##  LINKDIR         Linked Copies of ViSCa .sh 		Used for easy ViSCa execution
 
-VISCADIR = /home/kris/Documents/visca-select-reflection/ViSCa
+
+VISCADIR = /home/vboxuser/Documents/Calculations/visca-select-reflection/ViSCa/
+
 BINDIR = $(VISCADIR)/bin
 LINKDIR = /usr/local/bin
 
-#Set compiler (only ifort is currently supported)
-F90 = ifort
-
+#Set compiler (ifort for older intel fortran compilers or ifx for intel compilers since 2023)
+#F90 = ifort
+F90 = ifx
 SHELL := /bin/bash
 .PHONEY: clean default install
 default:
 	@printf "Warning: You are trying to install ViSCa via install script by Kris Strunge.\nTo proceed use 'sudo make install'.\nGood luck!\n"
 
-# Compile visca.f90
-visca.out: visca.f90
-	$(F90) -O2 -o $@ $< -llapack -lblas -diag-disable=10448 -static-intel
 
+#visca.out: visca.f90
+#	$(F90) -O2 -o $@ $< -llapack -lblas -diag-disable=10448 -static-intel
+
+# Compile visca.f90 (option below enables optimization for speed, CPU architecture, parallelization and better performance with large datasets - if there are issues with compiling, uncomment the option above and remove/comment out the option below)
+visca.out: visca.f90
+	$(F90) -o $@ $< -O3 -xHost -qopenmp -qmkl=parallel -heap-arrays -qopt-matmul -llapack -lblas -diag-disable=10448 -static-intel
 #Make default input file with paths to example folder (done with bash script)
 ViscaSelect_parameters.inp: $(BINDIR)/make_input.sh $(BINDIR)/ref_select.inp $(BINDIR)/ref_orient.inp
 	bash $<

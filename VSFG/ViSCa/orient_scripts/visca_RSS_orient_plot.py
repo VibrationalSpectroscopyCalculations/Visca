@@ -44,14 +44,14 @@ font = {'family' : 'Arial',
 plt.rc('font', **font)
 #plt.rc('xtick', labelsize=fs)    # fontsize of the tick labels
 #plt.rc('ytick', labelsize=fs)    # fontsize of the tick labels
-plt.xticks(range(0,210,30),fontsize=fs)
-plt.yticks(range(0,390,30),fontsize=fs)
+plt.xticks(range(0,210,30),fontsize=fs*0.8)
+plt.yticks(range(0,390,60),fontsize=fs*0.8)
 
 plt.xlabel(r'$\theta [\degree]$',fontsize=fs)
 plt.ylabel('$\psi [\degree]$',fontsize=fs)
 #plt.title('RSS of every possible continous trajectory from simulation %s with a resolution of %s frames per minimum segment'%(settings['name'],settings['FPSplit']))
 #plt.title('RSS from simulation %s with a resolution of %i degrees per rotation'%(settings['name'],resolution),fontsize=8)
-plt.colorbar()
+plt.colorbar(format='%.3f')
 #plt.savefig('results/%s.png'%settings['name'])
 plt.savefig('results/RSS_orient_%s.pdf'%settings['name'],bbox_inches='tight')
 plt.show()
