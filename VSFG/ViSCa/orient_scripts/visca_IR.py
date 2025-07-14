@@ -73,8 +73,5 @@ plt.xlim([1500, 1800])
 plt.ylim([-0.1, 1.1])
 plt.tight_layout(pad=1)
 plt.savefig(settings['name']+'_IR.pdf',dpi=400)
-<<<<<<< HEAD
 plt.show()
-=======
-plt.show()
->>>>>>> b9fc894055b4175331f1a6449e41ca215e87f359
+
