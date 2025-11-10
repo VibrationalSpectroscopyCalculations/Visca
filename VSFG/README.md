@@ -6,11 +6,12 @@ Scripts by Khezar H. Saeed, Rolf Mertig, Steven J. Roeters and Kris Strunge
 
 # Description  
 The software enables calculation of vibrational sum frequency generatoin (VSFG) spectra in reflection geometry of the amide I mode of proteins using a frequency mapping approach [[Roeters et al., *J. Phys. Chem. A*, **2013**](https://pubs.acs.org/doi/full/10.1021/jp401159r)].  
+New users are directed to a tutorial style paper [[Saeed et al., *J. Chem. Phys.*, **2025**](https://pubs.aip.org/aip/jcp/article/163/14/144706/3366974/ViSCa-A-computational-toolbox-for-vibrational)] based on the example files in this repository.  
 The program is run through the terminal/command line. After installation (see "Quick installation" below), the "visca" command is available globally.  
 The "visca" command reports usage and allows to run the different methods which make up the ViSCa software package.  
-The visca command can be run in any new project directory. The project directory need to contain the necessary input files, of which an running example can be found in the "./example" directory.  
+The visca command can be run in any new project directory. The project directory only needs to contain the necessary input files, of which a running example can be found in the "./example" directory, along with additional README files detailing the meaining of each parameter.  
 
-   ![ViSCa graphic](/ViSCa_graphic.png "Visca graphic")  
+   ![ViSCa graphic](./ViSCa_graphic.png "Visca graphic")  
 
 This software is managed by [SurfLab](https://chem.au.dk/en/research/research-areas-and-groups/physicalchemistry/surflab "SurfLab website") at Aarhus University. We are chemists not programmers, so take care.  
 
@@ -48,6 +49,7 @@ Optionally: `$ source ~/bashrc` or open fresh terminal to enable autocompletion 
 
 # References
 If you are using this software or its derivatives for your scientific work please cite the following papers:  
+[Saeed, Strunge, Mertig, Roeters, & Weidner, *J. Chem. Phys.*, **2025**](https://pubs.aip.org/aip/jcp/article/163/14/144706/3366974/ViSCa-A-computational-toolbox-for-vibrational)  
 [Roeters, Strunge, Pedersen et al., *Nature Comm.*, **2023**](https://www.nature.com/articles/s41467-023-39843-1)  
 [Roeters et al., *J. Phys. Chem. A*, **2013**](https://pubs.acs.org/doi/full/10.1021/jp401159r)  
-ViSCa Tutorial paper is being written by S. J. Roeters.
+
